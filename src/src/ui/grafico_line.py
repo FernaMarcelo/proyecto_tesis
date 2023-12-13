@@ -7,7 +7,11 @@ from flet.plotly_chart import PlotlyChart
 # Asegúrate de que esta ruta sea correcta para tu archivo de base de datos
 DATABASE_PATH = 'data/estudiantes.db'
 
-class graph_screen(ft.UserControl):
+class GraphScreen(ft.UserControl):
+    def __init__(self, route_change_handler, nav_rail_class):
+        super().__init__()
+        self.route_change_handler = route_change_handler
+        self.nav_rail_class = nav_rail_class
     
     def obtener_datos_para_grafico(self):
         conn = sqlite3.connect(DATABASE_PATH)
@@ -42,16 +46,19 @@ class graph_screen(ft.UserControl):
         return fig
 
 
+    def build(self):
+        rail = self.nav_rail_class.create_rail()
+        title = ft.Text('Aquí están los graficos', size=24)
+    
 
 
-        # Obtener DataFrame con los datos
-        df = self.obtener_datos_para_grafico()
-        
-        # Asegúrate de que la columna 'fecha_ingreso' sea tratada como un número entero, ya que solo contiene el año
-        df['fecha_ingreso'] = df['fecha_ingreso'].astype(int)
-
-        # Crear el gráfico con Plotly
-        fig = px.bar(df, x="fecha_ingreso", y="IDPS", color="Alumno", title="Índice de Desempeño Promedio del Semestre (IDPS) por Año de Ingreso")
-
-        # Agregar el gráfico de Plotly a la página de Flet
-        page.add(PlotlyChart(fig, expand=True))
+        return ft.Row(
+            [
+                rail,
+                ft.VerticalDivider(width=3),
+                
+            ],
+            width=800,
+            height=800,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        )
