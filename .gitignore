@@ -1,0 +1,3 @@
+# Ignorar directorios específicos
+env/
+__pycache__/
