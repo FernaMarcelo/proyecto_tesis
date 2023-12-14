@@ -48,6 +48,9 @@ class GraphScreen(ft.UserControl):
 
     def build(self):
         rail = self.nav_rail_class.create_rail()
+        df = self.obtener_datos_para_grafico()
+        fig = self.crear_figura_plotly(df)
+        grafico = PlotlyChart(figure=fig, expand=True)
         title = ft.Text('Aquí están los graficos', size=24)
     
 
@@ -56,9 +59,9 @@ class GraphScreen(ft.UserControl):
             [
                 rail,
                 ft.VerticalDivider(width=3),
-                
+                grafico,  
             ],
-            width=800,
-            height=800,
+            width=700,
+            height=700,
             vertical_alignment=ft.CrossAxisAlignment.START,
         )

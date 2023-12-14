@@ -27,10 +27,18 @@ class BD():
         
 
     def _initialize_database(self):
-        database = r"C:\Users\Tesis\Desktop\tesisMark1\estudiantes.db"
+        database = r"data\estudiantes.db"
+
+         # Creación de la tabla de cursos
+        sql_create_cursos_table = """ CREATE TABLE IF NOT EXISTS Cursos (
+                                        id_curso INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        nombre_curso TEXT NOT NULL,
+                                        codigo_curso TEXT NOT NULL,
+                                        semestre INTEGER NOT NULL
+                                    ); """
 
         sql_create_estudiantes_table = """ CREATE TABLE IF NOT EXISTS estudiantes (
-                                            id_alumno integer PRIMARY KEY,
+                                            Alumno integer PRIMARY KEY,
                                             fecha_ingreso text NOT NULL,
                                             ser_universitario real,
                                             matematicas real,
@@ -104,12 +112,29 @@ class BD():
                                             minor3 real 
                                         
                                     ); """
+        
+        # Creación de la tabla de notas
+        sql_create_notas_table = """ CREATE TABLE IF NOT EXISTS Notas (
+                                        id_nota INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        id_estudiante INTEGER,
+                                        id_curso INTEGER,
+                                        nota REAL,
+                                        FOREIGN KEY (id_estudiante) REFERENCES Estudiantes (id_estudiante),
+                                        FOREIGN KEY (id_curso) REFERENCES Cursos (id_curso)
+                                    ); """
+        
         # Crear conexión a la base de datos
         conn = self.create_connection(database)
 
         # Crear tabla
         if conn is not None:
             self.create_table(conn, sql_create_estudiantes_table)
+            self.create_table(conn, sql_create_cursos_table)
+            self.create_table(conn, sql_create_notas_table)
             conn.close()
         else:
             print("Error! No se pudo crear la conexión a la base de datos.")
+
+if __name__ == '__main__':
+    bd = BD()
+    bd._initialize_database()

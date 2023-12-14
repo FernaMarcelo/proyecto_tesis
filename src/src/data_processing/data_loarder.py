@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 
 # Asumiendo que el archivo Excel está en la carpeta 'data'
-excel_path = r'C:\Users\Tesis\Desktop\tesisMark1\data\CAPP_Alumnos_por_Malla_Informatica_minu.xlsx'
+excel_path = r'C:\Users\xmarc\OneDrive\Documentos\GitHub\proyecto\data\CAPP_Alumnos_por_Malla_Informatica_minu.xlsx'
 
 
 
@@ -31,5 +31,5 @@ if __name__ == '__main__':
     dataframe = load_data(excel_path)
 
     # Guardar en SQLite
-    save_to_sqlite(dataframe, r'C:\Users\Tesis\Desktop\tesisMark1\data\estudiantes.db')
+    save_to_sqlite(dataframe, r'estudiantes.db')
 
