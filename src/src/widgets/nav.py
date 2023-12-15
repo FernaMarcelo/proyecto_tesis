@@ -1,5 +1,6 @@
 # widgets/nav.py
 import flet as ft
+import asyncio
 
 
 class NavigationRailClass:
@@ -9,17 +10,20 @@ class NavigationRailClass:
         self.page = page
         self.selected_index = selected_index
 
-    async def on_change(self, event):
+    def on_change(self, event):
         index = event.control.selected_index
         if 0 <= index < len(self.destinations):
             selected_route = self.destinations[index]["route"]
             # Obtener la ruta actual
-            current_route = self.page.views[-1].route if self.page.views else None
+            current_route = self.page.route
 
             # print(f"selected_route :{selected_route}")
             # print(f"current_route :{current_route}")
             if selected_route != current_route:
+                self.set_selected_index(index)
+                self.route_change_handler(selected_route)
                # print(f"Vistas Actuales: {[view.route for view in self.page.views]}")
+
 
                 if len(self.page.views) > 1:
                
@@ -30,7 +34,7 @@ class NavigationRailClass:
                     print(
                         "No se elimina ninguna vista. Manteniendo {selected_route}.")
 
-                await self.route_change_handler(selected_route)
+                self.route_change_handler(selected_route)
             else:
                 print(
                     "La ruta seleccionada es la misma que la ruta actual. No se realiza ninguna acción.")
@@ -39,6 +43,7 @@ class NavigationRailClass:
 
     def set_selected_index(self, index):
         self.selected_index = index
+        self.page.update()
 
     def create_rail(self):
         rail_destinations = []
@@ -57,12 +62,12 @@ class NavigationRailClass:
         rail = ft.NavigationRail(
             selected_index=self.selected_index,
             label_type=ft.NavigationRailLabelType.ALL,
-            min_width=100,
-            min_extended_width=200,
+            min_width=56,
+            min_extended_width=100,
             group_alignment=-0.9,
-            height=300,
+            height=150,
             destinations=rail_destinations,
             on_change=self.on_change,
-            disabled=True,
+            disabled=False,
         )
         return rail

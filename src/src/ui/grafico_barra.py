@@ -19,7 +19,7 @@ class DatabaseAnalysis:
         # Asumiendo que tienes una manera de unir las tablas estudiantes y cursos
         # y que puedes determinar qué nota significa reprobación.
         reprobation_query = """
-        SELECT c.semestre, COUNT(DISTINCT e.id_alumno) as reprobados
+        SELECT c.semestre, COUNT(DISTINCT e.alumno) as reprobados
         FROM estudiantes e
         JOIN cursos c ON e.matematicas_id_curso = c.id_curso
         WHERE e.matematicas < 4 OR e.quimica < 4 OR e.fundamentos_de_ingenieria < 4 OR e.programacion < 4
@@ -28,7 +28,7 @@ class DatabaseAnalysis:
         """
 
         total_students_query = """
-        SELECT c.semestre, COUNT(e.id_alumno) as total
+        SELECT c.semestre, COUNT(e.alumno) as total
         FROM estudiantes e
         JOIN cursos c ON e.matematicas_id_curso = c.id_curso -- y así sucesivamente para todos los cursos
         GROUP BY c.semestre;
