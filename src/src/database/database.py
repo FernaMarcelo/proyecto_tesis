@@ -3,31 +3,29 @@ import sqlite3
 
 class BD():
     def __init__(self):
-        pass
+        self.database = r"data\estudiantes.db"
+        self.conn = self.create_connection(self.database)
+        self._initialize_database()
 
         
-    def create_connection(self,db_file):
-        """ Crea una conexión a la base de datos SQLite especificada por db_file """
-        conn = None
+    def create_connection(self, db_file):
+        """ Create a database connection to the SQLite database specified by db_file """
         try:
             conn = sqlite3.connect(db_file)
             return conn
         except sqlite3.Error as e:
             print(e)
-
-        return conn
-
-    def create_table(self,conn, create_table_sql):
-        """ Crea una tabla usando el create_table_sql proporcionado """
+        return None
+        
+    def create_table(self, create_table_sql):
+        """ Create a table using the create_table_sql provided """
         try:
-            c = conn.cursor()
+            c = self.conn.cursor()
             c.execute(create_table_sql)
         except sqlite3.Error as e:
             print(e)
-        
 
     def _initialize_database(self):
-        database = r"data\estudiantes.db"
 
          # Creación de la tabla de cursos
         sql_create_cursos_table = """ CREATE TABLE IF NOT EXISTS Cursos (
@@ -123,18 +121,68 @@ class BD():
                                         FOREIGN KEY (id_curso) REFERENCES Cursos (id_curso)
                                     ); """
         
-        # Crear conexión a la base de datos
-        conn = self.create_connection(database)
+        # Crear tabla para requisitos si no existe
+        create_requisitos_sql = """ CREATE TABLE IF NOT EXISTS Requisitos (
+                                    id_requisito INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    codigo_programa TEXT,
+                                    codigo_curso TEXT NOT NULL,
+                                    asignatura TEXT,
+                                    tipo_asignatura TEXT,
+                                    semestre TEXT,
+                                    creditos INTEGER,
+                                    creditos_corregidos INTEGER,
+                                    numero_idoneo_alumno_profesor_modulo_teorico INTEGER,
+                                    numero_maximo_alumnos_por_profesor INTEGER,
+                                    modulos_teoricos_en_sala INTEGER,
+                                    laboratorio INTEGER,
+                                    taller INTEGER,
+                                    simulacion INTEGER,
+                                    practica_campus_clinico INTEGER,
+                                    tutoria_mentoria INTEGER,
+                                    suma_total_modulos_practicos INTEGER,
+                                    ayudantia INTEGER,
+                                    total_modulos INTEGER,
+                                    numero_idoneo_alumnos_profesor_modulo_practico INTEGER,
+                                    prerrequisitos TEXT,
+                                    correquisitos TEXT,
+                                    atributos TEXT,
+                                    nombre_largo_curso TEXT,
+                                    FOREIGN KEY (codigo_curso) REFERENCES Cursos (codigo_curso)
+                                    ); """  # Completa con la estructura de tu tabla de requisitos
+        
+        # Execute table creation
+        self.create_table(sql_create_cursos_table)
+        self.create_table(sql_create_estudiantes_table)
+        self.create_table(sql_create_notas_table)
+        self.create_table(create_requisitos_sql)
 
-        # Crear tabla
-        if conn is not None:
-            self.create_table(conn, sql_create_estudiantes_table)
-            self.create_table(conn, sql_create_cursos_table)
-            self.create_table(conn, sql_create_notas_table)
-            conn.close()
-        else:
-            print("Error! No se pudo crear la conexión a la base de datos.")
+
+    def get_student_grades(self, student_id):
+        """Retrieve the grades for a specific student from the database."""
+        cursor = self.conn.cursor()
+        query = f"""
+        SELECT * FROM estudiantes WHERE Alumno = ?
+        """
+        cursor.execute(query, (student_id,))
+        row = cursor.fetchone()
+        return row
+
+    def get_course_requirements(self):
+        """Retrieve the course requirements from the database."""
+        cursor = self.conn.cursor()
+        query = """
+        SELECT codigo_curso, prerrequisitos FROM Requisitos
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        return {row[0]: row[1].split(',') if row[1] else [] for row in rows}
+    
+
+    def close_connection(self):
+        """ Close the database connection """
+        if self.conn:
+            self.conn.close()
 
 if __name__ == '__main__':
     bd = BD()
-    bd._initialize_database()
+    bd.close_connection()

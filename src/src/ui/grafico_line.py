@@ -71,38 +71,29 @@ class GraphScreen(ft.UserControl):
         conn.close()
         return df
     
-    def crear_secciones_grafico_tort(self,df):
-        chart_sections = []
-        # Paleta de colores para las secciones del gráfico
-        colors = [ft.colors.RED, ft.colors.BLUE, ft.colors.GREEN, ft.colors.YELLOW, ft.colors.PURPLE]
-        
-        for index, row in df.iterrows():
-            color = colors[index % len(colors)]
-            change_description = f"{row['Change']} fewer" if row['Change'] < 0 else f"{row['Change']} Más"
-            section = ft.PieChartSection(
-            value=row['Quantity'],
-            title=f"{row['Year']}: {row['Quantity']} Estudiantes ({change_description} que el Año Anterior)",
-            title_style=ft.TextStyle(size=16, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD),
-            color=color,
-            radius=50
-        )
-            chart_sections.append(section)
-        return chart_sections
+    def crear_figura_plotly_con_datos_torta(self, df):
+        # Asegúrate de que las columnas sean tratadas como números enteros
+        df['Year'] = df['Year'].astype(int)
+        df['Quantity'] = df['Quantity'].astype(int)
+        df['Change'] = df['Change'].astype(int)
+
+        # Crear el gráfico con Plotly
+        fig = px.bar(df, x="Year", y="Quantity", text="Change", 
+                     title="Cantidad en aumento de Estudiantes por Año de Ingreso")
+        return fig
 
     def build(self):
         rail = self.nav_rail_class.create_rail()
-        df = self.obtener_datos_para_grafico()
-        fig = self.crear_figura_plotly(df)
-        grafico = PlotlyChart(figure=fig, expand=True)
 
+        # Gráfico de barras original
+        df = self.obtener_datos_para_grafico()
+        fig1 = self.crear_figura_plotly(df)
+        grafico1 = PlotlyChart(figure=fig1, expand=True)
+
+        # Nuevo gráfico de barras usando los datos del gráfico de torta
         df_tort = self.obtener_datos_para_grafico_tort()
-        chart_sections = self.crear_secciones_grafico_tort(df_tort)
-        grafico_tort = ft.PieChart(
-            sections=chart_sections,
-            sections_space=0,
-            center_space_radius=120,
-            expand=True
-        )
+        fig2 = self.crear_figura_plotly_con_datos_torta(df_tort)
+        grafico2 = PlotlyChart(figure=fig2, expand=True)
     
 
 
@@ -111,8 +102,8 @@ class GraphScreen(ft.UserControl):
                 rail,
                 ft.Row(
                     [
-                        grafico,
-                        grafico_tort
+                        grafico1,
+                        grafico2
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_AROUND
                 )
